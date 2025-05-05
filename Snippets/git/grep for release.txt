@@ -1,0 +1,12 @@
+
+
+git describe --tags --abbrev=0
+
+git log  ac623dfd..HEAD --oneline --graph  --grep='#15159\|#15237\|#15322\|#15323\|#15371\|#15435\|#15450\|#15455\|#15392\|#15393\|#15394' > wanted.txt
+
+git lg  ac623dfd..HEAD --oneline --graph  --grep='#15159\|#15237\|#15322\|#15323\|#15371\|#15435\|#15450\|#15455\|#15392\|#15393\|#15394\|AutomatedBuild' --invert-grep > not-wanted.txt
+
+git log  ac623dfd..HEAD --oneline --graph  --grep='#\|AutomatedBuild' --invert-grep 
+
+
+

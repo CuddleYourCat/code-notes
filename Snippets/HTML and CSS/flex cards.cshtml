@@ -1,0 +1,445 @@
+@using EO.Internal
+@using SmartDebit.Common
+@using SmartDebit.Common.Extensions
+@using SmartDebit.Common.Web.Helpers
+@using SmartDebit.Dal.V3.FrontnewSchema.EntityExtensions
+@using SmartDebit.Enums
+@using WebGrease.Css.Extensions
+@using System.Linq
+@model SmartDebit.Common.Web.Models.ServiceUser.ServiceUserViewModel
+
+@{
+    Layout = null;
+}
+<style>
+    .checklist label, .radiolist label {
+        color: #808182;
+        padding-left: 20px;
+    }
+
+    #autoCompleteContainer {
+        overflow: visible !important;
+        margin-bottom: 20px;
+        width: 300px;
+    }
+
+        #autoCompleteContainer div.input-group {
+            width: 100%;
+        }
+
+        #autoCompleteContainer div.input-group-addon {
+            display: none;
+        }
+
+    #accountDetailLookupServiceUserSearch {
+        border-radius: 4px !important;
+    }
+
+        #accountDetailLookupServiceUserSearch ul {
+            min-width: 150px;
+        }
+
+    #addSuIdForAccountLookup {
+        margin-left: 25px;
+        width: 75px;
+        padding: 0px;
+    }
+
+    h2.title {
+        margin-bottom: 20px;
+    }
+
+    .glyphicon-search {
+        width: 36px;
+        font-size: 13px;
+        opacity: 0.9;
+        z-index: 5;
+    }
+
+    .form-group p {
+        margin-bottom: 15px;
+    }
+
+    .linked-service-user {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+        .linked-service-user a {
+            margin-left: 15px;
+            cursor: pointer;
+            text-decoration: none !important;
+            color: black;
+            display: flex;
+            align-items: center;
+        }
+
+            .linked-service-user a span {
+                font-size: 13px;
+            }
+
+    .flex-container {
+        display: flex;
+    }
+
+    .auto-file-management {
+        display: grid;
+        grid-template-columns:  33.33% 33.33% 33.33%;
+        grid-template-rows: 50% 50%;
+        grid-gap: 15px;
+    }
+
+    .import-stage-card {
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+        flex: 1 0 30%;
+        padding-left: 10px;
+        padding-bottom: 10px;
+        padding-right: 10px;
+        margin-right: 20px;
+        text-align: left;
+    }
+
+    .card-heading {
+        display: inline-flex;
+        color: #006db6;
+    }
+
+        .card-heading h4:first-of-type {
+            flex-grow: 1;
+        }
+
+    .import-stage-card .control-label {
+        padding-left: 0 !important;
+       max-width: 100%;
+        margin-bottom: 5px;
+        color: #808182;
+        font-weight: 700;
+        flex-grow: 1;
+        align-self: center;
+    }
+
+    .import-stage-card > .checklist {
+        padding-left: 0px;
+        color: #808182;
+    }
+
+    .import-stage-card button  {
+        height: 40px !important;
+    }
+
+    .import-stage-card .caret  {
+        float: right;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+</style>
+
+
+<div class="buttons clear">
+    @{ Html.RenderPartial("EditorTemplates/_ButtonsSaveCancel", new Tuple<bool, int>(@ViewBag.ServiceUserId == null, Model.Id)); }
+</div>
+
+<div class="form-group has-feedback" id="accountLookupSection">
+    <h2 class="title">Account Details Lookup</h2>
+    <p>Here you can specify which service users should be used to look up account details for references when using the credit file builder.</p>
+
+    @if (Session.CurrentUserServiceUserCount() > 0 &&
+                                        User.HasAccessPoint(SmartDebit.Common.AccessPoints.Front.Admin.AccessAllSUData))
+    {
+        <div style="display: flex;">
+            <div id="autoCompleteContainer" class="field-container">
+                @*@Html.LabelFor(m => m.SuidForPayerAccountDetails)*@
+                <input type="text"
+                       id="accountDetailLookupServiceUserSearch"
+                       @*value="@Model.SuNameForPayerAccountDetails"*@
+                       autocomplete="off"
+                       class="form-control textbox" data-provide="type-ahead"
+                       data-bind="value: lookupText, valueUpdate: 'input'" />
+                @Html.Hidden("SelectedAccountLookupSuId")
+            </div>
+            <button id="addSuIdForAccountLookup" data-bind="click: addSelectedServiceUser, enable: enableAddButton"
+                    class="form-control" disabled>
+                Add
+            </button>
+        </div>
+    }
+
+    <div id="linkedServiceUsers" data-bind="foreach: linkedServiceUsers">
+        <div class="linked-service-user">
+            <span data-bind="text: name"></span>
+            <a data-bind="click: remove"><span class="glyphicon glyphicon-remove"></span></a>
+        </div>
+        <input type="hidden" data-bind="attr: { 'id': serviceUserIdInputName, 'name': serviceUserIdInputName }, value: id" />
+    </div>
+
+</div>
+
+<div class="form-group">
+    <h2 class="title">Automated File Management</h2>
+
+    <p>Here you can tell the system to automatically push new SD Direct file imports through to a certain part of the validation and authorisation process.  You can also select which users will receive emails triggered at specific points.</p>
+    <container class="auto-file-management flex-container" id="AutomatedFileManagement">
+        @for (var i = 0; i < Model.ImportStageCards.OrderBy(x => x.Order).Count(); i++)
+        {
+            <div class="import-stage-card flex-container">
+                <div class="card-heading" id="card-heading_@Model.ImportStageCards[i].Name">
+                    <h4>@Model.ImportStageCards[i].ToString()</h4>
+                    <h4><i title="@Model.ImportStageCards[i].Description" class='glyphicon glyphicon-info-sign'></i></h4>
+                </div>
+                <div class="checklist">
+
+
+                    @if (Model.ImportStageCards[i].AutoProcessEnabled == true)
+                    {
+                        <div class="flex-container">
+                            <label class="control-label col-md-8" for="@Model.AutoProcessImports[i].AutoProcess">@Model.ImportStageCards[i].GetDescription()</label>
+                            <span class="@(Model.AutoProcessImports[i].AutoProcess ? "selected" : "") checkbox-inline">
+                                @Html.SdCheckBoxFor(m => m.AutoProcessImports[i].AutoProcess, new { @class = "form-control", @id = "Auto_" + Model.AutoProcessImports[i].Stage.ToString() })
+                                <a class="checkbox-select"></a>
+                                <a class="checkbox-deselect"></a>
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="glyphicon glyphicon-info-sign"></div><span>&nbsp;&nbsp;This phase cannot be automated</span>
+                    }
+                    @Html.HiddenFor(m => m.AutoProcessImports[i].Stage)
+
+                </div>
+                <div class="user-selection">
+                    <div class="control-label">Send emails to:</div>
+                    @if (Model.AutoProcessImports[i].SendEmailToUsers.Count == 0)
+                {
+                        <label>
+                            There are no users with the required role to send emails to.
+                        </label>
+                    }
+                    else
+                    {
+                        <div class="dropdown dropdown-parent">
+                            <button class="btn btn-default dropdown-toggle form-control" type="button" data-toggle="dropdown" data-target="#@(Model.ImportStageCards[i].Name)EmailRecipients"
+                                    aria-expanded="false" aria-labelledby="@(Model.ImportStageCards[i].Name)EmailRecipients">
+                                <span class="caret"></span>
+                                <span id="@(Model.ImportStageCards[i].Name)SelectedUserCount"></span>
+                            </button>
+                            <div class="dropdown-overflow" id="@(Model.ImportStageCards[i].Name)EmailRecipients">
+                                <div class="dropdown-menu scrollable-menu">
+                                    <div class="checklist">
+                                        @for (var j = 0; j < Model.AutoProcessImports[i].SendEmailToUsers.Count; j++)
+                                        {
+                                            <div>
+                                                <div class="col-md-9">
+                                                    <label for="@Model.AutoProcessImports[i].SendEmailToUsers[j].SendEmail">@Model.AutoProcessImports[i].SendEmailToUsers[j].UserName</label>
+                                                </div>
+                                                <div class="col-md-3 @(Model.AutoProcessImports[i].SendEmailToUsers[j].SendEmail ? "selected" : "") ">
+                                                    @Html.SdCheckBoxFor(m => m.AutoProcessImports[i].SendEmailToUsers[j].SendEmail, new { @class = "form-control checkbox" })
+                                                    <a class="checkbox-inline checkbox-select"></a>
+                                                    <a class="checkbox-inline checkbox-deselect"></a>
+                                                    @Html.HiddenFor(m => m.AutoProcessImports[i].SendEmailToUsers[j].UserName)
+                                                    @Html.HiddenFor(m => m.AutoProcessImports[i].SendEmailToUsers[j].UserId)
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </container>
+
+</div>
+
+<div class="form-group import-automation">
+
+    <h2 class="title">Email Notifications to Service User</h2>
+
+    <div class="row field-container">
+        @Html.HiddenFor(m => m.AutoAuthoriseImports, new { @id = "AutoAuthoriseImports" })
+        @Html.HiddenFor(m => m.AutoSubmitImports, new { @id = "AutoSubmitImports" })
+    </div>
+
+    <div class="row field-container">
+        <div class="form-group col-md-12">
+            <div class="col-md-6">
+                <div class="checklist">
+                    <label class="control-label col-md-8" title="Choose the format the Service User will receive their Bacs reports in.">Bacs Report Format</label>
+
+                    <div class="radio-inline">
+                        <span>
+                            @Html.SdRadioButtonFor(m => m.BacsReportCsv, false) XML
+                        </span>
+                    </div>
+                    <div class="radio-inline">
+                        <span>
+                            @Html.SdRadioButtonFor(m => m.BacsReportCsv, true) CSV
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row field-container">
+        <div class="form-group col-md-12">
+            <div class="col-md-6">
+                <div class="checklist">
+                    <label class="control-label col-md-8" title="Show the column headings for all .csv reports sent to the Service User.">Show CSV Header Row</label>
+                    <span class="@(Model.IncludeCSVHeaders ? "selected" : "") checkbox-inline">
+                        @Html.SdCheckBoxFor(m => m.IncludeCSVHeaders, new { @class = "form-control" })
+                        <a class="checkbox-select"></a>
+                        <a class="checkbox-deselect"></a>
+                    </span>
+                    @Html.HiddenFor(m => m.IncludeCSVHeaders)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row field-container">
+        <div class="form-group col-md-12">
+            <div class="col-md-6">
+                <div class="checklist">
+                    <label class="control-label col-md-8">Generate Control Files</label>
+                    <span class="@(Model.GenerateControlFiles ? "selected" : "") checkbox-inline">
+                        @Html.SdCheckBoxFor(m => m.GenerateControlFiles, new { @class = "form-control checkbox-inline" })
+                        <a class="checkbox-select"></a>
+                        <a class="checkbox-deselect"></a>
+                    </span>
+                    @Html.HiddenFor(m => m.GenerateControlFiles)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var accountLookup;
+
+    var AccountLookupServiceUser = function (id, name, parent) {
+        var self = this;
+        self.parent = parent;
+        self.id = ko.observable(id);
+        self.name = ko.observable(name);
+        self.serviceUserIdInputName = ko.computed(function () {
+            return '@(Html.NameFor(m => m.SuidsForPayerAccountDetails))[' + parent.linkedServiceUsers().indexOf(self) + ']';
+        }, this);
+        self.remove = function () {
+            self.parent.removeServiceUser(self);
+        }
+    }
+
+    var AccountLookupServiceUsersModel = function () {
+        var self = this;
+        self.linkedServiceUsers = ko.observableArray([]);
+        self.selectedServiceUserId = ko.observable();
+        self.selectedServiceUserName = ko.observable();
+        @if (Model.SuidsForPayerAccountDetails != null)
+        {
+            foreach (var suId in Model.SuidsForPayerAccountDetails)
+            {
+                var suName = "";
+                if (Model.SuNamesForPayerAccountDetails != null)
+                {
+                    suName = Model.SuNamesForPayerAccountDetails[suId];
+                }
+                @:self.linkedServiceUsers.push(new AccountLookupServiceUser(@suId, '@suName', self));
+                                            }
+        }
+        self.selectedIdValid = ko.computed(function () {
+            let id = self.selectedServiceUserId();
+            return id != undefined && (/^[0-9]+$/.test(id) || Number.isInteger(id));
+        }, this);
+        self.linkedServiceUsersContainsSelectedId = ko.computed(function () {
+            return self.linkedServiceUsers().some(su => su.id() === self.selectedServiceUserId());
+        }, this);
+        self.addSelectedServiceUser = function () {
+            let id = self.selectedServiceUserId();
+            let name = self.selectedServiceUserName();
+            if (!self.selectedIdValid()) {
+                return;
+            }
+            if (self.linkedServiceUsersContainsSelectedId()) {
+                return;
+            }
+            self.linkedServiceUsers.push(new AccountLookupServiceUser(id, name, self));
+            self.lookupText(null);
+        }
+        self.removeServiceUser = function (su) {
+            if (self.linkedServiceUsers().includes(su)) {
+                self.linkedServiceUsers.splice(self.linkedServiceUsers().indexOf(su), 1);
+            }
+        }
+        self.lookupText = ko.observable();
+        self.enableAddButton = ko.computed(function () {
+            return self.selectedIdValid() &&
+                !self.linkedServiceUsersContainsSelectedId()
+                && self.lookupText() === self.selectedServiceUserName();
+        }, this);
+    }
+
+    $(function () {
+
+        const $autoProcessCheckboxes = $('#autoProcessImports .checklist');
+        $.each($autoProcessCheckboxes,
+            function (index, element) {
+
+                $(element).click(function (e) {
+                    $(this).find('input[id^="AutoProcessImports_"][type="checkbox"]').val($(this).find('input').first().val());
+                });
+            });
+        $("#Auto_SignOff").change(function (e) {
+            $("#AutoSubmitImports").val(e.target.value);
+        });
+        $("#Auto_Authorise").change(function (e) {
+            $("#AutoAuthoriseImports").val(e.target.value);
+        });
+
+        const $emailRecipientsDropdowns = $('div[id$="EmailRecipients"]').find('.dropdown-menu');
+
+        $.each($emailRecipientsDropdowns,
+            function (index, element) {
+                const selectedCount = $(element).find("input[checked='checked']").length;
+
+                const $targetSpan = $(element).parent().siblings().find('span:last').text(`(${selectedCount} ${selectedCount === 1? 'user': 'users'} selected)`);
+
+                $(element).on('click.bs.dropdown', function (e) {
+                    const selectedCount = $(e.delegateTarget).find("input[checked='checked']").length;
+                    $(".open").parent().find('span[id$="SelectedUserCount"]').text(`(${selectedCount} ${selectedCount === 1? 'user': 'users'} selected)`);
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+            });
+
+        $('#accountDetailLookupServiceUserSearch').autocompleteComboBox(
+            {
+                queryUrl: '@Url.Action("SearchServiceUsersForUser", "ServiceUsers")',
+                count: 20,
+                targetId: 'SelectedAccountLookupSuId',
+                updateUi: function () {
+                },
+            }
+        );
+
+        accountLookup = new AccountLookupServiceUsersModel();
+        ko.applyBindings(accountLookup, document.getElementById("accountLookupSection"));
+
+        $('#SelectedAccountLookupSuId').change(function () {
+            accountLookup.selectedServiceUserId(this.value);
+            accountLookup.selectedServiceUserName($('#accountDetailLookupServiceUserSearch ~ .typeahead.dropdown-menu li.active').text());
+        });
+
+        $('#autoCompleteContainer').find('div.input-group-addon').remove();
+        $('<i class="glyphicon glyphicon-search form-control-feedback"></i>').insertAfter('#accountDetailLookupServiceUserSearch');
+
+    });
+
+
+</script>

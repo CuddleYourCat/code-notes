@@ -1,0 +1,673 @@
+﻿@using Newtonsoft.Json
+@using SmartDebit.Common.Web.Helpers
+@using SmartDebit.Enums
+@model SmartDebit.Front.Models.Payers.BulkPayerEditViewModel
+
+
+@Html.HiddenFor(m => m.MaximumDebitAmount)
+@Html.HiddenFor(m => m.UsesFrequencyFactors)
+@Html.HiddenFor(m => m.LastPendingDate)
+
+<style>
+    #ui-datepicker-div {
+        z-index: 9999 !important;
+    }
+
+    .datepicker {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .loading-pulse-icon {
+        position: static;
+        height: 24px;
+        width: 208px;
+    }
+
+    div.next-collection-text {
+        width: 208px;
+        height: 24px;
+    }
+
+    /* Remove spinners from inputs where type = number */
+    /* firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    /* others */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .set-null-checkbox {
+        padding-left: 0 !important;
+        margin-top: 0;
+    }
+
+    .checklist.disabled .set-null-checkbox {
+        cursor: default;
+    }
+
+    .checklist.disabled .checkbox-select {
+        cursor: not-allowed;
+        background: linear-gradient( rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) ), url(/images/checkbox.png) no-repeat;
+    }
+
+</style>
+
+@using (Ajax.BeginForm("BulkUpdate", "Payers", new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "notification-dialog",
+    OnSuccess = "redirectToUploadDetails(data)"
+}, new { id = "bulk-update-form" }))
+{
+    @Html.HiddenFor(p => p.PayerReferences)
+    @Html.HiddenFor(p => p.UpdatedFields)
+    @Html.HiddenFor(p => p.FirstAmount)
+    @Html.HiddenFor(p => p.RegularAmount)
+
+    if (Model.CanBulkReLodge)
+    {
+        <div class="row">
+            <div class="form-group col-md-12 payer-field check_disabled">
+                @Html.LabelFor(m => m.IsBulkReLodge, new { @class = "control-label col-md-4" })
+                @if (Model.CanServiceUserReLodge)
+                {
+                    @Html.SdCheckBoxBlue("IsBulkReLodge", false, new {}, new {@class = "checkbox checkbox-inline ignore", @style = "margin-top: 0;"})
+                }
+                else
+                {
+                    <div class="col-md-6"><span class="validation-error-msg">@Model.ReLodgeDisabledMessage</span></div>
+                }
+            </div>
+        </div>
+    }
+    if (Model.CanEditStartDate)
+    {
+        <div class="row">
+            <div class="form-group col-md-12">
+                @Html.LabelFor(m => m.StartDate, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    @Html.HiddenFor(m => m.EnforceCollectionDates)
+
+                    @Html.HiddenFor(m => m.LastCollectionDate)
+                    @Html.HiddenFor(m => m.LastPendingDate)
+                    @Html.HiddenFor(m => m.PreviousCollection.Date)
+
+                    @if (!string.IsNullOrWhiteSpace(Model.AvailableCollectionDays))
+                    {
+                        @Html.HiddenFor(p => p.AvailableCollectionDays)
+                    }
+                    else
+                    {
+                        @Html.Hidden("CollectionDates", "")
+                        @Html.Hidden("AvailableCollectionDays", "")
+                    }
+
+                    @Html.Hidden("CurrentServiceUserName", Model.ServiceUserName)
+
+                    @if (!Model.VariableDd)
+                    {
+                        <span class="input-group">
+                            @Html.TextBoxFor(m => m.StartDate, "{0:dd/MM/yyyy}", new { @class = "form-control datepicker  col-md-3", @placeholder = "DD/MM/YYYY" })
+                            @Html.HiddenFor(p => p.StartDateFake)
+                            <span class="input-group-addon" style="border-radius: 0 4px 4px 0; border-left: 0;">
+                                <a href="#"
+                                   id="startDatePopover"
+                                   tabindex="-1"
+                                   title="Start Date"
+                                   onclick="event.preventDefault();"
+                                   data-toggle="popover"
+                                   data-placement="right"
+                                   data-trigger="focus"
+                                   data-content="The date you wish the debit to begin collecting.">
+                                    <i class='glyphicon glyphicon-info-sign'></i>
+                                </a>
+                            </span>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="input-group" id="StartDateContainer">
+                            @Html.TextBoxFor(m => m.StartDate, "{0:dd/MM/yyyy}", new { @class = "form-control datepicker col-md-3", @placeholder = "DD/MM/YYYY" })
+                            <span class="input-group-addon" style="border-radius: 0 4px 4px 0; border-left: 0;">
+                                <a href="#"
+                                   id="startDatePopover"
+                                   tabindex="-1"
+                                   title="Start Date"
+                                   onclick="event.preventDefault();"
+                                   data-toggle="popover"
+                                   data-placement="right"
+                                   data-trigger="focus"
+                                   data-content="The date you wish the debit to begin collecting.">
+                                    <i class='glyphicon glyphicon-info-sign'></i>
+                                </a>
+                            </span>
+                            @Html.HiddenFor(p => p.StartDateFake)
+                        </span>
+                    }
+
+                </div>
+                <div id="start-date-validation-message" class="col-md-4">
+                    @if (Model.CanEditStartDate)
+                    {
+                        @Html.ValidationMessageFor(m => m.StartDate)
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="form-group col-md-12">
+            @Html.LabelFor(m => m.EndDate, new { @class = "control-label col-md-4" })
+            <div class="col-md-6">
+                <div class="input-group">
+                    @Html.TextBoxFor(m => m.EndDate, "{0:dd/MM/yyyy}", new { @class = "datepicker end-date form-control", @placeholder = "DD/MM/YYYY", autocomplete = "off" })
+                    <span class="input-group-addon">
+                        <a href="#" tabindex="-1" title="End Date" onclick="event.preventDefault();" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="The date you wish the debit to conclude collecting (Note: this will not cancel the instruction)."><i class='glyphicon glyphicon-info-sign'></i></a>
+                    </span>
+                </div>
+                <label>
+                    @Html.SdCheckBoxBlue("sdCheckNullEndDate", false, new { data_target = "EndDate" }, new { @class = " set-null-checkbox checkbox checkbox-inline ignore", data_target = "EndDate" })
+                    Set to NULL value
+                </label>
+            </div>
+            <div id="end-date-validation-message" class="col-md-4 validation-error-msg">@Html.ValidationMessageFor(m => m.EndDate)</div>
+        </div>
+    </div>
+
+    if (Model.VariableDd && Model.FrequencyEditable)
+    {
+        <div class="row">
+            <div class="form-group col-md-12">
+                @Html.LabelFor(m => m.FrequencyType, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        @Html.SdDropdownButtonFor(m => m.FrequencyType, Model.DebitFrequencies, new { @style = "height:34px; width:100%; text-align:left; border-radius: 4px 0 0 4px;" })
+                        <span class="input-group-addon">
+                            <a href="#" tabindex="-1" title="Frequency Type" onclick="event.preventDefault();" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="The frequency which your collections fall upon; W (Weekly), M (Monthly), Q (Quarterly), Y (Yearly)."><i class='glyphicon glyphicon-info-sign'></i></a>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 validation-error-msg">@Html.ValidationMessageFor(m => m.FrequencyType)</div>
+            </div>
+        </div>
+
+        if (Model.UsesFrequencyFactors && Model.FrequencyFactorEditable)
+        {
+            <div class="row">
+                <div class="form-group col-md-12">
+                    @Html.Label("Frequency Factor", new { @class = "control-label col-md-4" })
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            @Html.SdDropdownButtonFor(m => m.FrequencyFactor, Model.AvailableFrequencyFactors, new { @style = "height:34px; width:100%; text-align:left; border-radius: 4px 0 0 4px;" })
+                            <span class="input-group-addon">
+                                <a href="#" tabindex="-1" title="Frequency Factors (Amount)" onclick="event.preventDefault();" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="Selecting a frequency type of 'Monthly', then selecting a Frequency Factor of 1 would mean collecting once a month. Selecting 'Monthly' with a factor of 2 would mean collecting once every 2 months."><i class='glyphicon glyphicon-info-sign'></i></a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 validation-error-msg">@Html.ValidationMessageFor(m => m.FrequencyFactor)</div>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="form-group col-md-12">
+                @Html.LabelFor(m => m.FirstAmount, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        @Html.TextBoxFor(m => m.FirstAmountText, new { name = "FirstAmount", @class = "form-control", placeholder = "First Amount", @type = "number", data_bind = "value: FirstAmount", autocomplete = "off" })
+                        <span class="input-group-addon">
+                            <a href="#" title="First Amount" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="This allows you to specify a one off amount as a first collection which can be different to the regular amount. This can be left blank if the first amount should not be different to the regular amount."><i class='glyphicon glyphicon-info-sign'></i></a>
+                        </span>
+                    </div>
+                    <label>
+                        @Html.SdCheckBoxBlue("sdCheckNullFirstAmount", false, new { data_target = "FirstAmountText" }, new { @class = "set-null-checkbox checkbox checkbox-inline ignore", data_target = "FirstAmountText" })
+                        Set to NULL value
+                    </label>
+                </div>
+                <div class="col-md-4 validation-error-msg">@Html.ValidationMessageFor(m => m.FirstAmountText)</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-12">
+                @Html.LabelFor(m => m.RegularAmount, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        @Html.TextBoxFor(m => m.RegularAmountText, new { name = "RegularAmount", @class = "form-control", placeholder = "Regular Amount", @type = "number", data_bind = "value: RegularAmount", autocomplete = "off" })
+                        <span class="input-group-addon">
+                            <a href="#" title="Regular Amount" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="This allows you to specify a one off amount as a Regular collection which can be different to the regular amount. This can be left blank if the Regular amount should not be different to the regular amount."><i class='glyphicon glyphicon-info-sign'></i></a>
+                        </span>
+                    </div>
+                    <label>
+                        @Html.SdCheckBoxBlue("sdCheckNullRegularAmount", false, new { data_target = "RegularAmountText" }, new { @class = "set-null-checkbox checkbox checkbox-inline ignore", data_target = "RegularAmountText" })
+                        Set to NULL value
+                    </label>
+                </div>
+                <div class="col-md-4 validation-error-msg">
+                    @if (Model.VariableDd)
+                    {
+                        @Html.ValidationMessageFor(m => m.RegularAmount)
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    if (Model.ShowGiftAid
+            ||
+            Model.SupportGiftAidMember)
+    {
+        <div class="row">
+            <div class="form-group col-md-12 payer-field check_disabled">
+                @Html.LabelFor(m => m.SupportGiftAid, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div id="SupportGiftAidGroup" class="btn-group btn-group-sm " role="group" aria-label="...">
+                        <button type="button" class="btn btn-default btn-small" data-value="False">Set to False</button>
+                        <button type="button" class="btn btn-default active">No Change</button>
+                        <button type="button" class="btn btn-default" data-value="True">Set to True</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @Html.SdHiddenFor(x => x.SupportGiftAid, new { @class = "form-control ignore" })
+    }
+
+    if (Model.CanBulkReLodge)
+    {
+        <div class="row" id="CreateNpfOnRow" style="display: none;">
+            <div class="form-group col-md-12 payer-field">
+                @Html.LabelFor(m => m.CreateNpfOn, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        @Html.TextBoxFor(m => m.CreateNpfOn, "{0:dd/MM/yyyy}", new { @class = "datepicker create_npf_on form-control", @placeholder = "DD/MM/YYYY", autocomplete = "off" })
+                        <span class="input-group-addon">
+                            <a href="#" tabindex="-1" title="ReLodge Date" onclick="event.preventDefault();" data-toggle="popover" data-placement="right" data-trigger="focus"
+                               data-content="The date you wish to send the new payer file to BACS."><i class='glyphicon glyphicon-info-sign'></i></a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="re-lodge-validation-message" class="col-md-4 validation-error-msg">@Html.ValidationMessageFor(m => m.CreateNpfOn)</div>
+        </div>
+    }
+
+    if (User.HasGroup(GroupsEnum.Director))
+    {
+        <div class="row">
+            <div class="form-group col-md-12">
+                @Html.LabelFor(m => m.SuppressAccountValidation, new { @class = "control-label col-md-4" })
+                <div class="col-md-6">
+                    <div class="input-group">
+                        @Html.SdCheckBoxForBlue(m => m.SuppressAccountValidation, null, new { @class = "checkbox" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
+}
+
+<script type="text/javascript">
+
+    const $dialog = $('#notification-dialog');
+
+    const $inputs = $('#notification-dialog').find('input.form-control, .dropdown-parent input').not('#IsBulkReLodge, .checklist, .set-null-checkbox > input');
+    const $setNullCheckboxes = $('#notification-dialog').find('.set-null-checkbox').closest('.checklist');
+
+    const maximumDebitAmount = @(Model.MaximumDebitAmount) / 100;
+    const maxAmountExceededMessage = `This amount exceeds your maximum monthly allowance (£${maximumDebitAmount}) for this payer.`;
+
+    const $collectionDates = $.makeArray($('#AvailableCollectionDays').val().split(' '));
+
+    const validationOptions = {
+        rules: {
+            'FirstAmountText': {
+                max: maximumDebitAmount
+            },
+            'RegularAmountText': {
+                max: maximumDebitAmount
+            },
+            'EndDate': { dateAfter: 'StartDate' },
+            'StartDate': { dateBefore: 'EndDate' }
+        },
+        messages: {
+            'FirstAmountText': {
+                max: maxAmountExceededMessage
+            },
+            'RegularAmountText': {
+                max: maxAmountExceededMessage
+            }
+        },
+        errorElement: "span",
+        errorElementClass: 'input-validation-error',
+        errorClass: 'field-validation-error',
+        errorPlacement: function(error, element) {
+            const inputGroup = $(element).parent(".input-group");
+            error.insertAfter(inputGroup);
+        }
+    }
+
+    function enableOkButton(enable) {
+
+        if (enable) {
+            $("#btnOk").removeClass("btn-disabled").removeAttr("disabled");
+        } else {
+
+            const canDisable = $.makeArray($inputs.not('#CreateNpfOn, .set-null-checkbox')).every(function(el) {
+
+                return $(el).hasClass('ignore');
+            });
+
+            if (canDisable) {
+                $("#btnOk").addClass("btn-disabled").attr("disabled", "disabled");
+            }
+        }
+    }
+
+    var bulkUpdateFormDialogOptions = {
+        autoOpen: true,
+        cache: false,
+        modal: true,
+        height: 'auto',
+        resizable: false,
+        closeOnEscape: false,
+        beforeClose: function(event, ui) {
+            $dialog.empty();
+        },
+        closeEvent: function(event) { Cancel(event); },
+        title: 'Bulk Update',
+        buttons: [
+            {
+                id: 'btnOk',
+                text: 'Update',
+                title: 'Create payer update file and Import',
+                classed: 'btn btn-default btn-primary btn-disabled',
+                click:
+                    function(e) {
+                        if (validateForm()) {
+                            $('#PayerReferences').val(JSON.stringify(CheckedReferences()));
+                            $('#UpdatedFields').val(JSON.stringify(BulkUpdateFields()));
+                            $(e.target).addClass('btn-disabled').attr('disabled', 'disabled');
+                            $(e.target).prop('disabled', true);
+                            $('#bulk-update-form').ajaxSubmit({
+                                success: function (resp) {
+                                    window.location.href = resp.Url;
+                                },
+                                error: function (err, resp) {
+                                    $(e.target).prop('disabled', false);
+                                }
+                            });
+                            e.preventDefault();
+                        } else {
+                            $(e.target).prop('disabled', false);
+                        }
+                    }
+            }, {
+                id: 'btnCloseDialog',
+                text: 'Cancel',
+                tooltip: 'Close the dialog and cancel bulk update',
+                click: function() { $dialog.dialog('close'); }
+            }
+        ]
+    };
+
+    function closeDialog() {
+        $dialog.dialog('close');
+    }
+
+    function InitialiseFrequencyFactorDropdownForYearly() {
+        if ($('#FrequencyType').val() === 'Y') {
+            $('#FrequencyFactor_dropdown').text($('#FrequencyFactor').parent().find('li:nth-child(1)').text()).append('<div class=caret></div>');
+            $('#FrequencyFactor').val('1');
+
+            $('#FrequencyFactor').parent().find('li:nth-child(2)').hide();
+            $('#FrequencyFactor').parent().find('li:nth-child(3)').hide();
+            $('#FrequencyFactor').parent().find('li:nth-child(4)').hide();
+        }
+    }
+
+    function addToListOfUpdatedFields(element) {
+        $(element).removeClass('ignore');
+    }
+
+    function DisplaySelectedDropDownValue(event) {
+        var dataTarget = $(event.target).attr('data-target');
+        $(`#${dataTarget}_dropdown`).text(event.target.innerText).append('<div class=caret></div>');
+        $(`#${dataTarget}`).blur();
+    }
+
+    function changedByUser($event, jsEvent) {
+      return  $event.originalEvent != undefined ||
+            $($event.target).hasClass('datepicker') ||
+            $(jsEvent.currentTarget).hasClass('dropdown-selector');
+    }
+
+    function setChangeEvents() {
+
+        $('#FirstAmountText, #RegularAmountText').keypress(function (e) {
+            return restrictCharacters($(this), e);
+        });
+
+        $('#sdCheckNullFirstAmount').change(
+            function () {
+                if ($(this).val() === "true") {
+                    $('#FirstAmount').val(null);
+                }
+            }
+        );
+
+        $('#sdCheckNullRegularAmount').change(
+            function () {
+                if ($(this).val() === "true") {
+                    $('#RegularAmount').val(null);
+                }
+            }
+        );
+    
+        $('#FirstAmountText, #RegularAmountText')
+            .blur(function () {
+                const $dataField = $(`#${$(this).data('bind').replace('value: ', '')}`);
+                if (this.value) {
+                    $(this).val(Number($(this).val()).toFixed(2));
+
+                    $dataField.val(this.value.replace('.', ''));
+                    $dataField.valid();
+                } else {
+                    $dataField.val(null);
+                }
+            });
+
+
+        $.each($inputs, (function(index, element) {
+            $(element).addClass('ignore');
+            const $setNullCheckBox = $('#notification-dialog').find(`[data_target=${this.id}] > input`).first();
+
+            $(element).change(function(e) {
+                if (!changedByUser(e, event)) { return; }
+                if (this.value) {
+                    const updateValue = this.value;
+                    UpdateCheckBox($setNullCheckBox.attr('name'), false);
+                    $(this).val(updateValue);
+                    $(this).removeClass('ignore');
+                    validateForm();
+                    enableOkButton($(this).valid());
+                } else {
+                    if (! $(this).hasClass('ignore')) {
+                        $(this).addClass('ignore');
+                        enableOkButton(false);
+                    };
+                }
+                return;
+                }
+            );
+        }));
+
+        $.each($setNullCheckboxes,
+            function(index, element) {
+                $(element).find('input').addClass('ignore');
+
+                $(element).click(function(e) {
+               
+                    if ($(this).hasClass('disabled')) {
+                        return;
+                    }
+
+                    const $dataTarget = $(`#${$(this).find('.set-null-checkbox').first().attr('data_target')}`);
+
+                    if ($(this).find('input').first().val() === 'true') {
+
+                        $dataTarget.removeClass('ignore').val(null);
+                        enableOkButton(true);
+
+                    } else {
+                        
+                        console.log(`updating ${$dataTarget.attr('id')}, adding ignore`);
+                        $dataTarget.addClass('ignore');
+
+                        enableOkButton(false);
+                    }
+                });
+            });
+
+        $(".btn-group > .btn").click(function(){
+            $(".btn-group > .btn").removeClass("active");
+            $(this).addClass("active");
+            if($(this).data('value') === undefined)
+            {
+                $('#SupportGiftAid').addClass('ignore');
+                enableOkButton(false);
+            } else {
+                $('#SupportGiftAid').removeClass('ignore');
+                $('#SupportGiftAid').val($(this).data('value'));
+                enableOkButton(true);
+            }
+        });
+
+        const $isBulkReLodge = $('#IsBulkReLodge');
+
+        $.each($isBulkReLodge, function(index, element) {
+            $(element).addClass('ignore');
+
+            $('#IsBulkReLodge').change(function() {
+                $inputs.not('#CreateNpfOn').add('.dropdown-toggle, .btn-group > button').prop('disabled', $(this).val() === 'true');
+                if ($(this).val() === 'true') {
+                    $inputs.not('#CreateNpfOn')
+                        .add('.dropdown-toggle, .btn-group > button')
+                        .prop('disabled', true)
+                        .addClass('disabled');
+                    $setNullCheckboxes.addClass('disabled');
+                    $setNullCheckboxes.find('input[type=checkbox]').prop('disabled', true);
+                    $('#CreateNpfOn').removeClass('ignore');
+                    enableOkButton(true);
+                    $('#CreateNpfOnRow').show();
+
+                } else {
+                    $inputs.not('#CreateNpfOn')
+                        .add('.dropdown-toggle, .btn-group > button')
+                        .prop('disabled', false)
+                        .removeClass('disabled');
+                    $setNullCheckboxes.removeClass('disabled');
+                    $setNullCheckboxes.find('input[type=checkbox]').prop('disabled', false);
+                    $('#CreateNpfOnRow').hide();
+                    $('#CreateNpfOn').addClass('ignore');
+                    enableOkButton(false);
+                }
+            });
+        });
+    }
+
+    function redirectToUploadDetails(data) {
+        window.location.href = data.Url;
+    }
+
+    function validateForm() {
+        $dialog.find('form').validate(validationOptions);
+        const $valid = $dialog.find('form').valid();
+        ;
+        enableOkButton($valid);
+        return $valid;
+    }
+
+    function constrainStartDate() {
+        if ($('#EnforceCollectionDates').val() === 'True') {
+
+            var debitFrequencies = $('#FrequencyType').parent().find('li a[data-value]').toArray();
+            var onlyWeekDays = $('#FrequencyType').val() === 'W' || (debitFrequencies.length === 1 && (debitFrequencies).some(function(el) {
+                return $(el).attr('data-value') === 'W';
+            }));
+            if ($collectionDates.length > 0) {
+                $('#StartDate')
+                    .datepicker('option',
+                        'beforeShowDay',
+                        function (date) {
+                            var day = date.getDate();
+
+                            if (onlyWeekDays) {
+                                var dayOfWeek = date.getDay();
+                                return [$.inArray(day + '', $collectionDates) > -1  &&  (dayOfWeek >= 1 && dayOfWeek <= 5), '', ''];
+                            }
+                            return [$.inArray(day + '', $collectionDates) > -1, '', ''];
+                        });
+            }
+        }
+    }
+
+    function constrainStartDateToWeekDay(event) {
+
+        var dataTarget = $(event.target).attr('data-target');
+
+        if ($(`#${dataTarget}`).val() !== 'W') return;
+        $('#StartDate')
+            .datepicker('option',
+                'beforeShowDay',
+                function (date) {
+                    var day = date.getDate();
+
+                    var dayOfWeek = date.getDay();
+                    return [$.inArray(day + '', $collectionDates) > -1  &&  (dayOfWeek >= 1 && dayOfWeek <= 5), '', ''];
+                });
+    }
+
+    $(function () {
+
+        toggleBulkUpdateGlyph();
+
+        $dialog.dialog(bulkUpdateFormDialogOptions);
+
+        $dialog.dialog('open');
+
+        $('.dropdown-parent ul li a').click(function () {
+            DisplaySelectedDropDownValue(event);
+        });
+
+        $('#FrequencyType').change(function() {
+            constrainStartDateToWeekDay(event);
+        });
+
+        InitialiseCheckBoxes();
+
+        $('input.datepicker').datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+
+        $.validator.addMethod('dateBefore', function (value, element, params) { return isDateBefore(value, element, params)}, 'Start Date must be before {0}.');
+        $.validator.addMethod('dateAfter', function (value, element, params) { return isDateAfter(value, element, params)}, 'End Date must be after {0}.');
+
+        constrainStartDate();
+
+        InitialiseFrequencyFactorDropdownForYearly();
+
+        setChangeEvents();
+
+        enableOkButton(false);
+    });
+</script>

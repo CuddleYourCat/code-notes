@@ -1,0 +1,12 @@
+"$('#notification-dialog').on('submit', 'form', function (innerEvent) {",
+"  $(this).ajaxSubmit(function (data) {",
+"    if (data.RecordsDeleted > 0) {",
+"      // ...",
+"    } else {",
+"      //    ...",
+"    }",
+"    $('#notification-dialog').dialog('close');",
+"  });",
+"",
+"  innerEvent.preventDefault();",
+"});"

@@ -1,0 +1,4 @@
+. $C:\git\ECM3\Database\Tools\CommonDbTools.ps1
+. C:\git\ECM3\Database\Tools\CompareDbSchemas.ps1
+. C:\git\ECM3\Database\Tools\UpgradeDatabases.ps1
+. C:\git\ECM3\Database\Tools\ForLocal\AutoGenerateMSharpClasses.ps1

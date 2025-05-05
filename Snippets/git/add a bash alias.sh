@@ -1,0 +1,1 @@
+alias ruby4='cd c:/Ruby4/Ruby'

@@ -1,0 +1,47 @@
+## Copilot
+
+Handling nested objects or arrays in JSONPath involves using a dot (.) or bracket ([]) notation to navigate through the JSON structure. Here's how you can work with nested elements:
+
+1. **Dot Notation**: Use the dot notation to access nested objects.
+   - Example: To access the `Name` field in a nested object:
+     ```jsonpath
+     $.nestedObject.Name
+     ```
+
+2. **Bracket Notation**: Use the bracket notation to access properties with special characters or spaces, or to iterate over arrays.
+   - Example: To access the `Name` field in a nested object with a space in the key:
+     ```jsonpath
+     $['nested object'].Name
+     ```
+
+3. **Array Index**: Use an index to access a specific element within an array.
+   - Example: To access the first object in an array:
+     ```jsonpath
+     $.array[0]
+     ```
+
+4. **Wildcard (*)**: Use a wildcard to match all elements in an object or array.
+   - Example: To get all `Name` fields in an array of objects:
+     ```jsonpath
+     $.array[*].Name
+     ```
+
+5. **Recursive Descent (..)**: Use recursive descent to find elements without considering their position.
+   - Example: To find all `Name` fields at any level of nesting:
+     ```jsonpath
+     $..Name
+     ```
+
+6. **Filters**: Use filters within brackets to apply conditions to arrays or nested objects.
+   - Example: To find objects with a `Name` of `"John"` within an array:
+     ```jsonpath
+     $.array[?(@.Name == 'John')]
+     ```
+
+7. **Nested Filters**: Combine filters for deeper levels of nesting.
+   - Example: To find objects where a nested array contains an object with a specific property value:
+     ```jsonpath
+     $.array[?(@.nestedArray[?(@.key == 'value')])]
+     ```
+
+Remember, JSONPath expressions can be quite powerful and flexible, allowing you to navigate complex JSON structures and extract the data you need. If you have a specific JSON structure you're working with and need help crafting the right JSONPath expression, feel free to share it, and I'll assist you further! 😊

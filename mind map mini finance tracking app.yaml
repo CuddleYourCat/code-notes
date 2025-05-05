@@ -1,0 +1,77 @@
+# This YAML data represents a mini budgeting app's mind map, outlining its features and structure.
+
+### **Mini Budgeting App Mind Map**
+
+#### **1. User Interface (UI)**
+- **Dashboard**
+  - Overview of finances
+    - Funds remaining until next payday
+    - Recurring payments due before next payday
+    - Number of days until next payday
+  - Quick access to key features
+- **Navigation**
+  - Intuitive menu
+  - Easy access to settings and help
+- **Design**
+  - Clean and minimalistic
+  - Customizable themes
+
+#### **2. Core Features**
+- **Income Tracking**
+  - Add multiple income sources
+  - Categorize income
+- **Recurring Payments**
+  - Add and categorize recurring payments, including frequency
+  - Calculate next due date
+- **Expenditure Tracking**
+  - Add and categorize expenditure
+  - Add and categorize recurring payments
+  - Attach receipts/photos
+- **Budget Creation**
+  - Set monthly/weekly budgets
+  - Track budget vs. actual spending
+
+#### **3. Advanced Features**
+- **Savings Goals**
+  - Set and track savings goals
+  - Visual progress indicators
+- **Debt Managment**
+  - Track debts and payments
+  - Calculate interest and remaining balance
+- **Reports and Analytics**
+  - Generate spending reports
+  - Visualize spending patterns
+- **Alerts and Reminders**
+  - Bill payment reminders
+  - Budget limit alerts
+
+
+#### **4. Security**
+- **Data Encryption**
+  - Secure user data
+- **Authentication**
+  - Biometric login (fingerprint/face ID)
+  - Two-factor authentication
+
+#### **5. Integration**
+- **Bank Sync**
+  - Connect to bank accounts
+  - Automatic transaction import
+- **Export Options**
+  - Export data to CSV/Excel
+  - Integration with other financial apps
+
+#### **6. User Support**
+- **Help Center**
+  - FAQs and tutorials
+- **Customer Support**
+  - In-app chat support
+  - Email support
+
+#### **7. Monetization**
+- **Freemium Model**
+  - Basic features free
+  - Premium features via subscription
+- **Ads**
+  - Non-intrusive ads for free users
+
