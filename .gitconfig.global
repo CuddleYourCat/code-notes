@@ -1,0 +1,308 @@
+# [includeIf "gitdir/i:**/VSCode/Global/"]
+#     path = ~/.gitconfig.personal
+
+# [includeIf "gitdir/i:**/CuddleYourCat/**"]
+#     path = ~/.gitconfig.personal
+
+[user]
+name = Tracey Stobbs
+firstname = tracey
+email = tracey.stobbs@theaccessgroup.com
+
+[diff "astextplain"]
+textconv = astextplain
+[filter "lfs"]
+clean = git-lfs clean -- %f
+smudge = git-lfs smudge -- %f
+process = git-lfs filter-process
+required = true
+[http]
+sslBackend = openssl
+sslCAInfo = C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt
+	sslverify = false
+[core]
+autocrlf = true
+fscache = true
+symlinks = false
+editor = "\"C:\\\\Windows\\\\notepad.exe\" "
+
+# [credential]
+
+# helper = manager
+
+[diff]
+tool = vscode
+[difftool "vscode"]
+cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+tool = vscode
+[mergetool "vscode"]
+cmd = code --wait $MERGED
+
+[mergetool "code-insiders"]
+cmd = code-insiders --wait --merge $REMOTE $LOCAL $BASE $MERGED
+
+[alias]
+
+# <!--- .............  -->
+# COMMON ACTIONS
+# <!--- .............  -->
+
+lg1 = log --abbrev-commit --decorate --date=relative --format=format:'%C(magenta)%h%Creset %C(dim yellow)[%ad]%Creset %C(white)%s%Creset %C(blue)- %an%Creset%C(dim white)%d%C(reset)'
+
+lg2 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --first-parent
+
+lg = "!f() { \
+length=${1:-10}; \
+  git lg1 -${length}; \
+}; f";
+
+rbc = rebase --continue
+cp = cherry-pick
+cpc = cherry-pick --continue
+cae = commit --allow-empty
+mt = mergetool
+
+stash-save-pull-pop = "!f() { \
+ git stash save; \
+ git pull; \
+ git stash pop; \
+ }; f"
+
+ spp = stash-save-pull-pop
+ 
+sta = "!f() { \
+ git stash list; \
+ if read -p 'Enter number of stash to apply, or any non digit to cancel:> '; [[($REPLY =~ [0-9]+)]]; then git stash apply stash@{$REPLY}; fi \
+ }; f"
+
+notepad = "!git config core.editor notepad && git config format.commitMessageColumns 72 --global"
+
+cache-clear = "!f() { \
+ git rm -r --cached .; \
+ git add .; \
+ git commit -am 'git cache cleared'; \
+ git push; \
+ }; f"
+
+# <!--- .............  -->
+# FUNCTIONS
+# <!--- .............  -->
+
+success = "!f() { \
+ if [ '$?' == '0' ]; \
+ then echo true; \
+ else echo false; \
+ fi \
+ }; f"
+
+# <!--- .............  -->
+# BRANCH INFO
+# <!--- .............  -->
+
+### get a list of branches, showing only the branch name and it's upstream. Then process that data and only output if 2nd column is empty
+upstream = "!git rev-parse --abbrev-ref --symbolic-full-name @{u}"
+
+## List branches that have no upstream
+### get a list of branches, showing only the branch name and it's upstream. Then process that data and only output if 2nd column is empty
+no-upstream = "!git branch --format '%(refname:short) %(upstream:short)' | awk '{if (!$2) print $1;}'"
+
+## - Get the current branch name (not so useful in itself, but used in other aliases)
+current-branch = rev-parse --abbrev-ref HEAD
+
+## - Check if there are any unstaged changes
+has-unstaged-changes = "!f() { \
+ test=$(git diff-index HEAD --); \
+	if [ '$test' == '' ]; \
+ then echo 1; \
+ else echo 0; \
+ fi \
+ }; f"
+
+## - Check if the branch exists
+branch-exists-old = "!f() { \
+ git rev-parse --verify ${1} > /dev/null 2>&1; \
+ return $?;  }; f"
+#  if [ $? == 0 ]; \
+#  then echo 1; \
+#  else echo 0; \
+#  fi \
+#  }; f"
+
+be = !git branch-exists-old
+
+branch-exists = "!f() { \
+result=$(git branch -a --format '%(refname:short)' | grep --ignore-case ${1}$); echo $result; \
+}; f"
+
+local-branch-exists = "!f() { \
+result=$(git branch -a --format '%(refname:short)' | grep --ignore-case ${1}$ | grep --invert-match -c origin/feature); echo $result; \
+}; f"
+
+remote-only-branch = "!f() { \
+result=$(git branch -a --format '%(refname:short)' | grep --ignore-case -c origin/.*/${1}$); echo $result; \
+}; f"
+
+## - Get the upstream for the current branch
+##### `git rev-parse --abbrev-ref CURRENT@{u}`
+#### I don't care what the output is, so I am redirecting the result to dev/null: `> /dev/null 2>&1`
+#### Instead, I am using the special variable `$?`, which returns the exit code of the last run command, in this case, the upstream
+
+has-upstream-old = "!f() { \
+ CURRENT=$(git current-branch); \
+ git rev-parse --abbrev-ref $CURRENT@{u} > /dev/null 2>&1; \
+ if [ $? == 0 ]; \
+ then echo 1; \
+ else echo 0; \
+ fi; \
+ }; f"
+
+has-upstream = "!f() { \
+ result=$(git branch --format '%(refname:short) %(upstream:short)' | grep -c --ignore-case ${1}$); \
+ echo $result; \
+ if [[ $result == 2 ]]; \
+ then echo 1; \
+  else echo 0; \
+  fi; \
+ }; f"
+
+## - Check if it is possible to pull from the remote
+can-pull = has-upstream && git has-unstaged-changes
+
+# <!--- .............  -->
+# BRANCH ACTIONS
+# <!--- .............  -->
+
+## - Push the current branch to the remote "origin", and set it to track the upstream branch of the same name
+psu = !CURRENT=$(git current-branch) && git push --set-upstream origin $CURRENT
+
+## - Push the current branch to the remote "origin", and set it to track the upstream branch
+set-upstream = !CURRENT=$(git current-branch) && git branch --u origin/$CURRENT
+unset-upstream = !CURRENT=$(git current-branch) && git branch -unset-upstream $CURRENT
+su = !git set-upstream
+uu = !git unset-upstream
+# <!--- .............  -->
+# DDCMS Branches and Tickets
+# <!--- .............  -->
+
+default-user-branch = "!f() { echo 'users/tracey/WI-';}; f"
+me = "!f() { iam=$(git config user.firstname); echo ${iam};}; f"
+
+## Work Items
+# <!--- .............  -->
+
+checkout-mine = "!f() { \
+ work_item_number=${1^^}; \
+						git switch users/$(git config user.firstname)/WI-${work_item_number}; \
+ }; f"
+co = !git checkout-mine
+
+ init-WI  = "!f() { \
+	work_item_number=${1^^}; \
+	[[ $1 ]] ||  read -p 'Enter work item number:> ' work_item_number; echo 'Azure Work Item: ' $work_item_number; \
+	\
+	branch_name=users/$(git config user.firstname)/WI-${work_item_number}; \
+	\
+	if [[ $(git branch-exists $branch_name) ]]; \
+     	then read -p 'A branch with the name '${branch_name}' already exists, would you like to switch to it? [y/n]:> ' checkout_existing; \
+			 [[ $checkout_existing == 'n' ]] && return 1; \
+			 git switch $branch_name; \
+			 exit; \
+		 else \
+		 	checkout_option='-b'; \
+	fi; \
+	\
+	featureName=${2^}; \
+	[[ $2 ]] || git features; \
+	[[ $2 ]] || read -p 'Select a feature branch:> ' featureName; \
+	\
+	feature_upstream=''; \
+	if [[ $featureName  ]] ;\
+  		then  git switch ${featureName} ; \
+		      feature_upstream=origin/$featureName;  \
+	fi; \
+	\
+ 	git checkout ${checkout_option} ${branch_name} ${feature_upstream} ; \
+ }; f"
+
+# init-WI = "!f() { \
+# 	work_item_number=${1^^}; \
+# 	can_pull=$(git can-pull); \
+# 	branch_exists=$(git branch-exists); \
+# 	branch_exists=$(git branch-exists); \
+# 	if [ '$can_pull' == '0' ]; \
+#  		then \
+#  		git pull; \
+#  		exit; \
+# 	fi; \
+#  	git checkout -b users/$(git config user.firstname)/WI-${work_item_number}; \
+#  }; f"
+ECM = !git init-WI
+AP = !git init-WI
+wi = !git init-WI
+
+delete-branches = "!f() { \
+regex_pattern=${1^}; \
+[[ $1 ]] ||  read -p 'Enter pattern matching branches to delete:> ' regex_pattern;  \
+\
+[[ $regex_pattern ]] || return 1; \
+git branch | grep -i $regex_pattern; \
+read -p 'Confirm [y/n]:>' continue; \
+\
+[[ $continue = 'y' ]] && git branch | grep -i $regex_pattern | xargs git branch -D ; \
+\
+\
+ }; f"
+rmb = !git delete-branches
+
+## Feature Branches
+# <!---  -->
+
+show-feature-branches = !git branch -a | grep 'feature/'
+features = !git show-feature-branches
+
+# <!---  -->
+### checkout-feature (cof)
+
+##### The ‘^’ operator converts lowercase letters matching pattern to uppercase; the ‘,’ operator converts matching uppercase letters to lowercase. The ‘^^’ and ‘,,’ expansions convert each matched character in the expanded value; the ‘^’ and ‘,’ expansions match and convert only the first character in the expanded value. If pattern is omitted, it is treated like a ‘?’, which matches every character. ref: [expanding parameters and changing case](https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion)
+
+checkout-feature = "!f() { \
+ featureName=${1}; \
+  [[ $1 ]] || git features; \
+  [[ $1 ]] || read -p 'Enter name of feature branch:> ' featureName; \
+	feature_upstream=''; \
+	if [[ $featureName  ]] ; then  git switch feature/${featureName} ; feature_upstream=origin/feature/$featureName; fi; \
+ }; f"   
+
+cof = !git checkout-feature
+
+# <!---  -->
+WI-feature = "!f() { \
+	work_item_number=${1^^}; \
+		if [[ $1 == '' ]]; \
+  	then \
+    	read -p 'Enter work item number:> ' work_item_number; \
+	fi; \
+	\
+	branch_name=users/$(git config user.firstname)/WI-${work_item_number}; \
+	\
+	if [[ $(git branch-exists $branch_name) ]]; \
+     		then checkout_option='-b'; \
+         echo 'Creating new branch' ${branch_name}; \
+	fi; \
+	feature_upstream=''; \
+	if [[ $2  ]]; \
+  		then  git cof ${2} && git pull; \
+		      ${feature_upstream}=origin/feature/${2};  \
+		else  echo 'No argument supplied for feature branch.'; \
+	fi; \
+	\
+ 	git checkout ${checkout_option} ${branch_name} ${feature_upstream} ; \
+ }; f"
+
+
+[credential "http://10.24.128.5:8080"]
+	provider = generic
+[rerere]
+	enabled = true
+
