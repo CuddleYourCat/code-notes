@@ -1,0 +1,518 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": 
+    [
+        {
+            "command": 
+            {
+                "action": "copy",
+                "singleLine": false
+            },
+            "id": "User.copy.644BA8F2"
+        },
+        {
+            "command": "paste",
+            "id": "User.paste"
+        },
+        {
+            "command": "find",
+            "id": "User.find"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "auto",
+                "splitMode": "duplicate"
+            },
+            "id": "User.splitPane.A6751878"
+        }
+    ],
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{80b6666c-b492-498f-997b-2100cd470fb8}",
+    "firstWindowPreference": "persistedWindowLayout",
+    "keybindings": 
+    [
+        {
+            "id": "User.copy.644BA8F2",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": "User.find",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "id": "User.paste",
+            "keys": "ctrl+v"
+        },
+        {
+            "id": "User.splitPane.A6751878",
+            "keys": "alt+shift+d"
+        }
+    ],
+    "launchMode": "maximized",
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "profiles": 
+    {
+        "defaults": {},
+        "list": 
+        [
+            {
+                "colorScheme": "Campbell Powershell",
+                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "elevate": true,
+                "font": 
+                {
+                    "face": "Cascadia Mono"
+                },
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "Windows PowerShell"
+            },
+            {
+                "altGrAliasing": true,
+                "antialiasingMode": "grayscale",
+                "closeOnExit": "automatic",
+                "colorScheme": "Campbell Powershell",
+                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "cursorShape": "bar",
+                "elevate": true,
+                "font": 
+                {
+                    "face": "Cascadia Mono",
+                    "size": 12
+                },
+                "guid": "{958e3593-2fc0-4d0f-933e-9664fc8e0ab4}",
+                "hidden": false,
+                "historySize": 9001,
+                "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
+                "name": "Xero (Windows PowerShell)",
+                "padding": "8, 8, 8, 8",
+                "snapOnInput": true,
+                "startingDirectory": "C:\\Users\\Tracey.Stobbs\\src\\repos\\AccessPaysuiteXeroIntegration",
+                "useAcrylic": false
+            },
+            {
+                "backgroundImage": "C:\\Users\\Tracey.Stobbs\\src\\repos\\AccessPaysuiteXeroIntegration\\public\\images\\ec-bg.png",
+                "backgroundImageOpacity": 0.14,
+                "backgroundImageStretchMode": "uniformToFill",
+                "colorScheme": "Overnight Slumber",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "light"
+                },
+                "guid": "{02ed8e81-7d27-4e51-8688-3333ffce0a4d}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "name": "Xero",
+                "startingDirectory": "C:\\Users\\Tracey.Stobbs\\src\\repos\\AccessPaysuiteXeroIntegration",
+                "tabTitle": "Xero"
+            },
+            {
+                "backgroundImage": "C:\\git\\ECM3\\srcLegacy\\ECLegacy.WebApp\\Content\\images\\DDCMS_WSLogo.png",
+                "backgroundImageOpacity": 0.07,
+                "colorScheme": "Overnight Slumber",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "light"
+                },
+                "guid": "{80b6666c-b492-498f-997b-2100cd470fb8}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "name": "ECM3",
+                "opacity": 100,
+                "startingDirectory": "C:\\git\\ECM3",
+                "tabTitle": "ECM3",
+                "useAcrylic": true
+            },
+            {
+                "backgroundImage": null,
+                "colorScheme": "Twilight",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "semi-light"
+                },
+                "guid": "{80b6666c-b492-498f-997b-2100cd470fb9}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "intenseTextStyle": "all",
+                "name": "Bash",
+                "startingDirectory": "C:\\git",
+                "tabTitle": "Bash",
+                "useAcrylic": true
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "elevate": true,
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Command Prompt"
+            },
+            {
+                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+                "hidden": false,
+                "name": "Azure Cloud Shell",
+                "source": "Windows.Terminal.Azure"
+            },
+            {
+                "guid": "{4537c60f-efc3-504e-a986-59072e8de1ee}",
+                "hidden": false,
+                "name": "Developer Command Prompt for VS 2022",
+                "source": "Windows.Terminal.VisualStudio"
+            },
+            {
+                "guid": "{abb470b9-6aed-5f37-858e-e0f5a81b3b80}",
+                "hidden": false,
+                "name": "Developer PowerShell for VS 2022",
+                "source": "Windows.Terminal.VisualStudio"
+            },
+            {
+                "guid": "{16208362-94fc-5b1f-a491-5b2624d5ab56}",
+                "hidden": true,
+                "name": "Visual Studio Debug Console",
+                "source": "VSDebugConsole"
+            },
+            {
+                "guid": "{17bf3de4-5353-5709-bcf9-835bd952a95e}",
+                "hidden": true,
+                "name": "Ubuntu-22.04",
+                "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "guid": "{2cf49243-88c5-5627-bedf-fd5dca35fa40}",
+                "hidden": true,
+                "name": "Xero",
+                "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "adjustIndistinguishableColors": "indexed",
+                "backgroundImage": "C:\\Users\\Tracey.Stobbs\\OneDrive - Access UK Ltd\\Pictures\\almalinux-colors.png",
+                "backgroundImageOpacity": 0.16,
+                "colorScheme": "Overnight Slumber",
+                "font": 
+                {
+                    "face": "Fira Code"
+                },
+                "guid": "{a96ed3df-ae2e-529d-a014-9ecc4572d622}",
+                "hidden": true,
+                "intenseTextStyle": "all",
+                "name": "AlmaLinux9",
+                "opacity": 100,
+                "padding": "5",
+                "source": "Windows.Terminal.Wsl",
+                "startingDirectory": "/"
+            },
+            {
+                "adjustIndistinguishableColors": "indexed",
+                "backgroundImage": "C:\\git\\Access Payments\\AccessPayments\\Customer.Widget\\public\\favicon.png",
+                "backgroundImageOpacity": 0.14,
+                "backgroundImageStretchMode": "uniformToFill",
+                "colorScheme": "Chester",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "light"
+                },
+                "guid": "{86ca856c-ab2e-4b76-95ba-a2a4301235d3}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "name": "Access Payments",
+                "startingDirectory": "C:\\git\\Access Payments\\AccessPayments",
+                "tabTitle": "AccessPayments"
+            },
+            {
+                "adjustIndistinguishableColors": "indexed",
+                "backgroundImage": "desktopWallpaper",
+                "backgroundImageOpacity": 0.14,
+                "backgroundImageStretchMode": "uniformToFill",
+                "colorScheme": "Ryuuko",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "light"
+                },
+                "guid": "{364f2a4a-c48a-4367-bba2-6f89c2113ed8}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "name": "Access Payments CCM",
+                "startingDirectory": "C:\\git\\Access.Payment.CCM",
+                "tabTitle": "CCM"
+            },
+            {
+                "backgroundImage": null,
+                "colorScheme": "Twilight",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "elevate": true,
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "semi-light"
+                },
+                "guid": "{9ad3846c-c44b-47a3-997f-7700b62da31c}",
+                "hidden": false,
+                "icon": "C:/Program Files/Git/mingw64/share/git/git-for-windows.ico",
+                "intenseTextStyle": "all",
+                "name": "Bash (Copy)",
+                "startingDirectory": "C:\\git",
+                "tabTitle": "Bash",
+                "useAcrylic": true
+            },
+            {
+                "guid": "{8ab8e6f6-35c6-5b46-8419-3e1568105476}",
+                "hidden": false,
+                "name": "podman-machine-default",
+                "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                "hidden": false,
+                "name": "PowerShell",
+                "source": "Windows.Terminal.PowershellCore"
+            },
+            {
+                "guid": "{40c77338-7677-524c-ad5a-7b9ca4da5786}",
+                "hidden": false,
+                "name": "AlmaLinux OS 9",
+                "source": "AlmaLinuxOSFoundation.AlmaLinux9_dx92scvka9p9g"
+            },
+            {
+                "guid": "{4ff56d04-d9cf-57ea-bae2-ad396374e7e3}",
+                "hidden": false,
+                "name": "Ubuntu 22.04.5 LTS",
+                "source": "CanonicalGroupLimited.Ubuntu22.04LTS_79rhkp1fndgsc"
+            },
+            {
+                "backgroundImage": "C:\\git\\CuddleYourCat\\vite react\\ddcms-data-generator\\src\\assets\\react.svg",
+                "backgroundImageOpacity": 0.07,
+                "colorScheme": "Twilight",
+                "commandline": "C:/Program Files/Git/bin/bash.exe -i -l",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11,
+                    "weight": "light"
+                },
+                "guid": "{412aadfe-7c69-4956-9aee-db45f775b532}",
+                "hidden": false,
+                "icon": "C:\\git\\CuddleYourCat\\vite react\\ddcms-data-generator\\src\\assets\\react.svg",
+                "intenseTextStyle": "all",
+                "name": "DDCMS Frontend",
+                "opacity": 100,
+                "startingDirectory": "C:\\git\\ECM3\\srcFrontend\\DDCMS.Frontend",
+                "tabTitle": "Front",
+                "useAcrylic": true
+            }
+        ]
+    },
+    "schemes": 
+    [
+        {
+            "background": "#1E1C31",
+            "black": "#141228",
+            "blue": "#65B2FF",
+            "brightBlack": "#565575",
+            "brightBlue": "#91DDFF",
+            "brightCyan": "#AAFFE4",
+            "brightGreen": "#95FFA4",
+            "brightPurple": "#C991E1",
+            "brightRed": "#FF8080",
+            "brightWhite": "#CBE3E7",
+            "brightYellow": "#FFE9AA",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#63F2F1",
+            "foreground": "#CBE1E7",
+            "green": "#62D196",
+            "name": "ChallengerDeep",
+            "purple": "#906CFF",
+            "red": "#FF5458",
+            "selectionBackground": "#FFFFFF",
+            "white": "#A6B3CC",
+            "yellow": "#FFB378"
+        },
+        {
+            "background": "#2C3643",
+            "black": "#080200",
+            "blue": "#288AD6",
+            "brightBlack": "#6F6B68",
+            "brightBlue": "#278AD6",
+            "brightCyan": "#27DEDE",
+            "brightGreen": "#16C98D",
+            "brightPurple": "#D34590",
+            "brightRed": "#FA5E5B",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FEEF6D",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#28DDDE",
+            "foreground": "#FFFFFF",
+            "green": "#16C98D",
+            "name": "Chester",
+            "purple": "#D34590",
+            "red": "#FA5E5B",
+            "selectionBackground": "#FFFFFF",
+            "white": "#E7E7E7",
+            "yellow": "#FFC83F"
+        },
+        {
+            "background": "#000000",
+            "black": "#1D1D1D",
+            "blue": "#720102",
+            "brightBlack": "#000000",
+            "brightBlue": "#CB4A05",
+            "brightCyan": "#FED04D",
+            "brightGreen": "#CC734D",
+            "brightPurple": "#4E739F",
+            "brightRed": "#FECEA0",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FD9F4D",
+            "cursorColor": "#BBBBBB",
+            "cyan": "#979797",
+            "foreground": "#FFFFCE",
+            "green": "#9E744D",
+            "name": "Fahrenheit",
+            "purple": "#734C4D",
+            "red": "#CDA074",
+            "selectionBackground": "#4E739F",
+            "white": "#FFFFCE",
+            "yellow": "#FECF75"
+        },
+        {
+            "background": "#0E1729",
+            "black": "#0A1222",
+            "blue": "#8DABE1",
+            "brightBlack": "#575656",
+            "brightBlue": "#8DABE1",
+            "brightCyan": "#FFA7C4",
+            "brightGreen": "#85CC95",
+            "brightPurple": "#C792EB",
+            "brightRed": "#FFA7C4",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FFCB8B",
+            "cursorColor": "#FFA7C4",
+            "cyan": "#78CCF0",
+            "foreground": "#CED2D6",
+            "green": "#85CC95",
+            "name": "Overnight Slumber",
+            "purple": "#C792EB",
+            "red": "#FFA7C4",
+            "selectionBackground": "#1F2B41",
+            "white": "#FFFFFF",
+            "yellow": "#FFCB8B"
+        },
+        {
+            "background": "#2C3941",
+            "black": "#2C3941",
+            "blue": "#6A8E95",
+            "brightBlack": "#5D7079",
+            "brightBlue": "#6A8E95",
+            "brightCyan": "#88B2AC",
+            "brightGreen": "#66907D",
+            "brightPurple": "#B18A73",
+            "brightRed": "#865F5B",
+            "brightWhite": "#ECECEC",
+            "brightYellow": "#B1A990",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#88B2AC",
+            "foreground": "#ECECEC",
+            "green": "#66907D",
+            "name": "Ryuuko",
+            "purple": "#B18A73",
+            "red": "#865F5B",
+            "selectionBackground": "#FFFFFF",
+            "white": "#ECECEC",
+            "yellow": "#B1A990"
+        },
+        {
+            "background": "#2D2D2D",
+            "black": "#000000",
+            "blue": "#6699CC",
+            "brightBlack": "#000000",
+            "brightBlue": "#6699CC",
+            "brightCyan": "#66CCCC",
+            "brightGreen": "#99CC99",
+            "brightPurple": "#CC99CC",
+            "brightRed": "#F2777A",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FFCC66",
+            "cursorColor": "#CCCCCC",
+            "cyan": "#66CCCC",
+            "foreground": "#CCCCCC",
+            "green": "#99CC99",
+            "name": "Tomorrow Night Eighties",
+            "purple": "#CC99CC",
+            "red": "#F2777A",
+            "selectionBackground": "#515151",
+            "white": "#FFFFFF",
+            "yellow": "#FFCC66"
+        },
+        {
+            "background": "#141414",
+            "black": "#141414",
+            "blue": "#44474A",
+            "brightBlack": "#262626",
+            "brightBlue": "#5A5E62",
+            "brightCyan": "#8A989B",
+            "brightGreen": "#CCD88C",
+            "brightPurple": "#D0DC8E",
+            "brightRed": "#DE7C4C",
+            "brightWhite": "#FFFFD4",
+            "brightYellow": "#E2C47E",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#778385",
+            "foreground": "#FFFFD4",
+            "green": "#AFB97A",
+            "name": "Twilight",
+            "purple": "#B4BE7C",
+            "red": "#C06D44",
+            "selectionBackground": "#313131",
+            "white": "#FFFFD4",
+            "yellow": "#C2A86C"
+        },
+        {
+            "background": "#000000",
+            "black": "#000000",
+            "blue": "#82AAFF",
+            "brightBlack": "#333333",
+            "brightBlue": "#B4CCFF",
+            "brightCyan": "#B8EAFF",
+            "brightGreen": "#DBF1BA",
+            "brightPurple": "#DDBDF2",
+            "brightRed": "#F6A9AE",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FFDFA6",
+            "cursorColor": "#FEFEFE",
+            "cyan": "#89DDFF",
+            "foreground": "#FFFFFF",
+            "green": "#C3E88D",
+            "name": "UltraDark",
+            "purple": "#C792EA",
+            "red": "#F07178",
+            "selectionBackground": "#222222",
+            "white": "#CCCCCC",
+            "yellow": "#FFCB6B"
+        }
+    ],
+    "theme": "dark",
+    "themes": [],
+    "windowingBehavior": "useAnyExisting"
+}
