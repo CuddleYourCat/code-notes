@@ -1,13 +1,15 @@
-# [includeIf "gitdir/i:**/VSCode/Global/"]
-#     path = ~/.gitconfig.personal
-
-# [includeIf "gitdir/i:**/CuddleYourCat/**"]
-#     path = ~/.gitconfig.personal
-
-[user]
+ [user]
 name = Tracey Stobbs
 firstname = tracey
 email = tracey.stobbs@theaccessgroup.com
+
+# [includeIf "gitdir/i:**/VSCode/Global/"]
+#      path = ~/.gitconfig.personal
+# 
+# [includeIf "gitdir/i:**/CuddleYourCat/**"]
+#      path = ~/.gitconfig.personal
+
+
 
 [diff "astextplain"]
 textconv = astextplain
@@ -275,6 +277,7 @@ checkout-feature = "!f() { \
  }; f"   
 
 cof = !git checkout-feature
+apacs = !git cof Apacs18V2
 
 # <!---  -->
 WI-feature = "!f() { \
