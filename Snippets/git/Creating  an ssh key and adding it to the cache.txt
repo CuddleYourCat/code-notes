@@ -1,0 +1,6 @@
+ssh-keygen -t ed25519 -C "tracey.stobbs@hotmail.co.uk"
+
+Get-Service -Name ssh-agent | Set-Service -StartupType Manual
+Start-Service ssh-agent
+ssh-add c:/Users/YOU/trace/@publicKey
+
